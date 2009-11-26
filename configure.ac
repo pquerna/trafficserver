@@ -378,6 +378,52 @@ AC_CHECK_LIB([ssl],[SSL_CTX_new],
   [-ldl -lcrypto -lgcc]
 )
 
+AC_ARG_WITH(
+    ev,
+    [AC_HELP_STRING([--with-ev=PATH],[Path to the libev prefix])],
+    ev_path="$withval",
+    :)
+
+if test -z $ev_path; then
+    test_paths="/opt/local /usr/local /usr"
+else
+    test_paths="${ev_path}"
+fi
+
+for x in $test_paths ; do
+    AC_MSG_CHECKING([for ev.h in ${x}/include])
+    if test -f ${x}/include/ev.h; then
+        AC_MSG_RESULT([yes])
+        save_CFLAGS=$CFLAGS
+        save_LDFLAGS=$LDFLAGS
+        CFLAGS="$CFLAGS"
+        LDFLAGS="-L$x/lib $LDFLAGS"
+        AC_CHECK_LIB(ev, ev_unloop,
+            [
+            EV_LIBS="-L$x/lib -lev"
+            EV_CFLAGS="-I$x/include"
+            ])
+        CFLAGS=$save_CFLAGS
+        LDFLAGS=$save_LDFLAGS
+        break
+    else
+        AC_MSG_RESULT([no])
+    fi
+done
+
+AC_SUBST(EV_LIBS)
+AC_SUBST(EV_CFLAGS)
+
+if test -z "${EV_LIBS}"; then
+  AC_MSG_NOTICE([*** libev library not found.])
+  AC_MSG_ERROR([libev library is required])
+else
+  AC_MSG_NOTICE([using '${EV_LIBS}' for libev Library])
+fi
+
+CPPFLAGS="$CPPFLAGS $EV_CFLAGS"
+LDFLAGS="$LDFLAGS $EV_LIBS"
+
 #
 # Tcl macros provided by m4/tcl.m4
 #
