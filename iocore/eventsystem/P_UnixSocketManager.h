@@ -45,7 +45,6 @@ extern int monitor_write_activity;
 #define SOCKETS_TO_ALLOCATE                       1021
 #define SOCKETS_LOW_WATER                          100
 #define SOCKETS_LOW_WATER_WARN_HYSTERIA             50
-#define EPOLL_MAX_DESCRIPTOR_SIZE                32768
 
 #define O_NO_WRITE_CACHE 0
 
@@ -420,66 +419,6 @@ SocketManager::poll(struct pollfd *fds, unsigned long nfds, int timeout)
       break;
     r = -errno;
   } while (transient_error());
-  return r;
-}
-
-
-INK_INLINE int
-SocketManager::epoll_create(int size)
-{
-  int r;
-
-  if (size <= 0)
-    size = EPOLL_MAX_DESCRIPTOR_SIZE;
-  do {
-    if (likely((r =::epoll_create(size)) >= 0))
-      break;
-    r = -errno;
-  } while (errno == -EINTR);
-  return r;
-}
-
-
-INK_INLINE int
-SocketManager::epoll_close(int epfd)
-{
-  int r = 0;
-
-  if (likely(epfd >= 0)) {
-    do {
-      if (likely((r =::close(epfd)) == 0))
-        break;
-      r = -errno;
-    } while (errno == -EINTR);
-  }
-  return r;
-}
-
-
-INK_INLINE int
-SocketManager::epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
-{
-  int r;
-
-  do {
-    if (likely((r =::epoll_ctl(epfd, op, fd, event)) == 0))
-      break;
-    r = -errno;
-  } while (errno == -EINTR);
-  return r;
-}
-
-
-INK_INLINE int
-SocketManager::epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
-{
-  int r;
-
-  do {
-    if ((r =::epoll_wait(epfd, events, maxevents, timeout)) >= 0)
-      break;
-    r = -errno;
-  } while (errno == -EINTR);
   return r;
 }
 

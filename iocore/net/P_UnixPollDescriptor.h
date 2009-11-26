@@ -37,12 +37,10 @@ typedef struct pollfd Pollfd;
 struct PollDescriptor
 {
   int result;                   // result of poll
-  int epoll_fd;                 // epoll interface (added by YTS Team, yamsat)
+  struct ev_loop *eloop;
   int nfds;                     // actual number
   int seq_num;                  // sequence number
   Pollfd pfd[POLL_DESCRIPTOR_SIZE];
-
-  struct epoll_event ePoll_Triggered_Events[POLL_DESCRIPTOR_SIZE];      //added by YTS Team, yamsat
 
   bool empty()
   {
@@ -62,9 +60,9 @@ struct PollDescriptor
     result = 0;
     nfds = 0;
     seq_num = 0;
-    epoll_fd = epoll_create(POLL_DESCRIPTOR_SIZE);      //added by YTS Team, yamsat
+    eloop = ::ev_loop_new(EVBACKEND_EPOLL|EVBACKEND_KQUEUE|
+                          EVBACKEND_DEVPOL|EVBACKEND_PORT);
     memset(pfd, 0, sizeof(pfd));
-    memset(ePoll_Triggered_Events, 0, sizeof(ePoll_Triggered_Events));
     return this;
   }
   PollDescriptor() {

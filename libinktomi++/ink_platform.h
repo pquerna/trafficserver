@@ -77,9 +77,7 @@
 #include <strings.h>
 #include <poll.h>
 
-#if (HOST_OS == linux)
-#include <sys/epoll.h>
-#endif
+#include <ev.h>
 
 #if (HOST_OS != freebsd)
 #include <values.h>

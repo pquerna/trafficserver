@@ -84,10 +84,6 @@ struct SocketManager
   int ftruncate(int fildes, off_t length);
   int lockf(int fildes, int function, long size);
   int poll(struct pollfd *fds, unsigned long nfds, int timeout);
-  int epoll_create(int size);
-  int epoll_close(int eps);
-  int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-  int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
   int shutdown(int s, int how);
   int dup(int s);
 
